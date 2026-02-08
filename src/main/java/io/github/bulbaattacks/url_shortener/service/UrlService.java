@@ -19,13 +19,19 @@ public class UrlService {
         var originalUrl = dto.url();
         var uri = URI.create(originalUrl);
         var path = uri.getPath();
-        var encodePath = UrlHasher.hashUrl(path);
-        var shortUrl = uri.getHost() + "/" + encodePath;
+        var shortUrl = UrlHasher.hashUrl(path);
         var entity = Url.builder()
                 .originalUrl(originalUrl)
                 .shortUrl(shortUrl)
                 .build();
         repository.save(entity);
         return new UrlDto(shortUrl);
+    }
+
+    public String getOriginalUrl(String shortUrl) {
+        return repository
+                .findByShortUrl(shortUrl)
+                .map(Url::getOriginalUrl)
+                .orElseThrow(() -> new RuntimeException("no url"));
     }
 }
