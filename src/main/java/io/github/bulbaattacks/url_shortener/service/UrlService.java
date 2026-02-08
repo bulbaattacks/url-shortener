@@ -2,6 +2,7 @@ package io.github.bulbaattacks.url_shortener.service;
 
 import io.github.bulbaattacks.url_shortener.entity.Url;
 import io.github.bulbaattacks.url_shortener.dto.UrlDto;
+import io.github.bulbaattacks.url_shortener.exception.NoUrlException;
 import io.github.bulbaattacks.url_shortener.util.UrlHasher;
 import io.github.bulbaattacks.url_shortener.repository.UrlRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +16,9 @@ public class UrlService {
 
     private final UrlRepository repository;
 
-    public UrlDto shortUrl(UrlDto dto) {
+    public UrlDto createShortUrl(UrlDto dto) {
         var originalUrl = dto.url();
-        var uri = URI.create(originalUrl);
-        var path = uri.getPath();
-        var shortUrl = UrlHasher.hashUrl(path);
+        var shortUrl = UrlHasher.hashUrl(originalUrl);
         var entity = Url.builder()
                 .originalUrl(originalUrl)
                 .shortUrl(shortUrl)
@@ -32,6 +31,6 @@ public class UrlService {
         return repository
                 .findByShortUrl(shortUrl)
                 .map(Url::getOriginalUrl)
-                .orElseThrow(() -> new RuntimeException("no url"));
+                .orElseThrow(() -> new NoUrlException(shortUrl));
     }
 }

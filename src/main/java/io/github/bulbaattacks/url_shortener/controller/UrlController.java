@@ -14,7 +14,7 @@ public class UrlController {
 
     @PostMapping("/short")
     public UrlDto urlShortener(@RequestBody UrlDto dto) {
-        return service.shortUrl(dto);
+        return service.createShortUrl(dto);
     }
 
     @GetMapping("/{shortUrl}")
