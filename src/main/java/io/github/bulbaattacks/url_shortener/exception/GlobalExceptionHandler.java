@@ -11,10 +11,24 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoUrlException.class)
-    public ResponseEntity<?> handleUserExists(NoUrlException ex) {
+    public ResponseEntity<?> handleNoUrl(NoUrlException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AlreadyExistsUrlException.class)
+    public ResponseEntity<?> handleShortUrlExists(AlreadyExistsUrlException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(Map.of("error", ex.getReason() != null ? ex.getReason() : "no original url"));
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(HashGenerationException.class)
+    public ResponseEntity<?> handleHashIsNotGenerated(HashGenerationException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", ex.getMessage()));
     }
 }
 

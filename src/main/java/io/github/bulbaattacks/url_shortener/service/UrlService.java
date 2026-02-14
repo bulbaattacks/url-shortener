@@ -1,14 +1,13 @@
 package io.github.bulbaattacks.url_shortener.service;
 
-import io.github.bulbaattacks.url_shortener.entity.Url;
 import io.github.bulbaattacks.url_shortener.dto.UrlDto;
+import io.github.bulbaattacks.url_shortener.entity.Url;
+import io.github.bulbaattacks.url_shortener.exception.AlreadyExistsUrlException;
 import io.github.bulbaattacks.url_shortener.exception.NoUrlException;
-import io.github.bulbaattacks.url_shortener.util.UrlHasher;
 import io.github.bulbaattacks.url_shortener.repository.UrlRepository;
+import io.github.bulbaattacks.url_shortener.util.UrlHasher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.net.URI;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +17,9 @@ public class UrlService {
 
     public UrlDto createShortUrl(UrlDto dto) {
         var originalUrl = dto.url();
+        if (repository.findByOriginalUrl(originalUrl).isPresent()) {
+            throw new AlreadyExistsUrlException(originalUrl);
+        }
         var shortUrl = UrlHasher.hashUrl(originalUrl);
         var entity = Url.builder()
                 .originalUrl(originalUrl)

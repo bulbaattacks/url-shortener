@@ -1,6 +1,7 @@
 package io.github.bulbaattacks.url_shortener.util;
 
-import java.net.URI;
+import io.github.bulbaattacks.url_shortener.exception.HashGenerationException;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -15,7 +16,7 @@ public class UrlHasher {
             value = Math.abs(value);
             return Encoder.encode(value);
         } catch (Exception e) {
-            throw new RuntimeException("Hash generation failed", e);
+            throw new HashGenerationException();
         }
     }
 }
