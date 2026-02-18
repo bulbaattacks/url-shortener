@@ -2,7 +2,6 @@ package io.github.bulbaattacks.url_shortener.service;
 
 import io.github.bulbaattacks.url_shortener.dto.UrlDto;
 import io.github.bulbaattacks.url_shortener.entity.Url;
-import io.github.bulbaattacks.url_shortener.exception.AlreadyExistsUrlException;
 import io.github.bulbaattacks.url_shortener.exception.NoUrlException;
 import io.github.bulbaattacks.url_shortener.repository.UrlRepository;
 import io.github.bulbaattacks.url_shortener.util.UrlHasher;
@@ -17,16 +16,18 @@ public class UrlService {
 
     public UrlDto createShortUrl(UrlDto dto) {
         var originalUrl = dto.url();
-        if (repository.findByOriginalUrl(originalUrl).isPresent()) {
-            throw new AlreadyExistsUrlException(originalUrl);
+        var optUrl = repository.findByOriginalUrl(originalUrl);
+        if (optUrl.isPresent()) {
+            var existedShortUrl = optUrl.get().getShortUrl();
+            return new UrlDto(existedShortUrl);
         }
-        var shortUrl = UrlHasher.hashUrl(originalUrl);
+        var newShortUrl = UrlHasher.hashUrl(originalUrl);
         var entity = Url.builder()
                 .originalUrl(originalUrl)
-                .shortUrl(shortUrl)
+                .shortUrl(newShortUrl)
                 .build();
         repository.save(entity);
-        return new UrlDto(shortUrl);
+        return new UrlDto(newShortUrl);
     }
 
     public String getOriginalUrl(String shortUrl) {

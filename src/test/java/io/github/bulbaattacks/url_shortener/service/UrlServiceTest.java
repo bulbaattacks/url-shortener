@@ -2,19 +2,22 @@ package io.github.bulbaattacks.url_shortener.service;
 
 import io.github.bulbaattacks.url_shortener.dto.UrlDto;
 import io.github.bulbaattacks.url_shortener.entity.Url;
-import io.github.bulbaattacks.url_shortener.exception.AlreadyExistsUrlException;
 import io.github.bulbaattacks.url_shortener.exception.NoUrlException;
 import io.github.bulbaattacks.url_shortener.repository.UrlRepository;
+import io.github.bulbaattacks.url_shortener.util.UrlHasher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class UrlServiceTest {
@@ -27,13 +30,21 @@ class UrlServiceTest {
 
     @Test
     void createShortUrl_shouldThrowAlreadyExistsUrlException_whenOriginalUrlExists() {
-        String url = "https://example.com";
-        UrlDto dto = new UrlDto(url);
+        String originalUrl = "https://example.com";
+        String existedShortUrl = "xyz789";
 
-        Mockito.when(repository.findByOriginalUrl(url))
-                .thenReturn(Optional.of(new Url()));
+        Url entity = Url.builder()
+                .originalUrl(originalUrl)
+                .shortUrl(existedShortUrl)
+                .build();
 
-        assertThrows(AlreadyExistsUrlException.class, () -> service.createShortUrl(dto));
+        Mockito.when(repository.findByOriginalUrl(originalUrl))
+                .thenReturn(Optional.of(entity));
+
+        UrlDto result = service.createShortUrl(new UrlDto(originalUrl));
+
+        assertEquals(existedShortUrl, result.url());
+        Mockito.verify(repository, Mockito.never()).save(any());
     }
 
     @Test
@@ -48,22 +59,22 @@ class UrlServiceTest {
 
     @Test
     void createShortUrl_shouldSaveAndReturnShortUrl_whenOriginalUrlNotExists() {
-        String url = "https://example.com";
-        UrlDto dto = new UrlDto(url);
+        String originalUrl = "https://example.com";
+        String newShortUrl = "xyz789";
 
-        Mockito.when(repository.findByOriginalUrl(url))
+        Mockito.when(repository.findByOriginalUrl(originalUrl))
                 .thenReturn(Optional.empty());
-        Mockito.when(repository.save(Mockito.any()))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        UrlDto result = service.createShortUrl(dto);
 
-        assertNotNull(result);
-        assertNotNull(result.url());
-        assertNotEquals(url, result.url());
+        try (MockedStatic<UrlHasher> mocked = Mockito.mockStatic(UrlHasher.class)) {
+            mocked.when(() -> UrlHasher.hashUrl(originalUrl))
+                    .thenReturn(newShortUrl);
+            UrlDto result = service.createShortUrl(new UrlDto(originalUrl));
 
-        Mockito.verify(repository).findByOriginalUrl(url);
-        Mockito.verify(repository).save(Mockito.any(Url.class));
+            assertEquals(newShortUrl, result.url());
+            Mockito.verify(repository).save(any(Url.class));
+        }
     }
+
 
     @Test void getOriginalUrl_shouldReturnOriginalUrl_whenShortUrlExists() {
         String shortUrl = "abc123";

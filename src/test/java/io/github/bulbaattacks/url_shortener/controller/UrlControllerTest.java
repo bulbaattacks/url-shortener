@@ -36,14 +36,15 @@ class UrlControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "url": "https://tinyurl.com/"
+                            "url": "https://example.com"
                         }
                         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.url").value("abc123"));
     }
 
-    @Test void shouldRedirectToOriginalUrl() throws Exception {
+    @Test
+    void shouldRedirectToOriginalUrl() throws Exception {
         Mockito.when(service.getOriginalUrl(eq("abc123")))
                 .thenReturn("https://example.com");
 
@@ -52,6 +53,22 @@ class UrlControllerTest {
                 .andExpect(header().string("Location", "https://example.com"));
     }
 
+    @Test
+    void shouldReturnExistedShortUrl() throws Exception {
+        UrlDto request = new UrlDto("https://example.com");
+        UrlDto response = new UrlDto("abc123");
 
+        Mockito.when(service.createShortUrl(any(UrlDto.class)))
+                .thenReturn(response);
+
+        mockMvc.perform((post("/short")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""" 
+                        {"url": "https://example.com"} 
+                        """)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url")
+                        .value("abc123"));
+    }
 }
 
