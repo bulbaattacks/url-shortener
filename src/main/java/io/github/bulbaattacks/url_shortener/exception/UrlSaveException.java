@@ -1,7 +1,7 @@
 package io.github.bulbaattacks.url_shortener.exception;
 
-public class AlreadyExistsUrlException extends RuntimeException {
-    public AlreadyExistsUrlException(String url) {
-        super("Short url already exists for this url: %s".formatted(url));
+public class UrlSaveException extends RuntimeException {
+    public UrlSaveException(String url) {
+        super("Can't save url: %s".formatted(url));
     }
 }

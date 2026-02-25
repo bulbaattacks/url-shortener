@@ -2,7 +2,7 @@ CREATE SCHEMA IF NOT EXISTS url;
 
 CREATE TABLE url.urls (
     id SERIAL PRIMARY KEY,
-    short_url VARCHAR(64) NOT NULL,
+    short_url VARCHAR(64) NOT NULL UNIQUE,
     original_url TEXT NOT NULL UNIQUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

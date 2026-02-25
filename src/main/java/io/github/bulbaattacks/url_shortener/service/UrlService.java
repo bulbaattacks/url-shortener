@@ -2,7 +2,7 @@ package io.github.bulbaattacks.url_shortener.service;
 
 import io.github.bulbaattacks.url_shortener.dto.UrlDto;
 import io.github.bulbaattacks.url_shortener.entity.Url;
-import io.github.bulbaattacks.url_shortener.exception.AlreadyExistsUrlException;
+import io.github.bulbaattacks.url_shortener.exception.UrlSaveException;
 import io.github.bulbaattacks.url_shortener.exception.NoUrlException;
 import io.github.bulbaattacks.url_shortener.repository.UrlRepository;
 import io.github.bulbaattacks.url_shortener.util.UrlHasher;
@@ -26,7 +26,7 @@ public class UrlService {
         try {
             repository.save(entity);
         } catch (DataIntegrityViolationException e) {
-            throw new AlreadyExistsUrlException(originalUrl);
+            throw new UrlSaveException(e.getMessage());
         }
         return new UrlDto(newShortUrl);
     }

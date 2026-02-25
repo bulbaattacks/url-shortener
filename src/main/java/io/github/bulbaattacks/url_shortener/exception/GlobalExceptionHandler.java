@@ -17,8 +17,8 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", ex.getMessage()));
     }
 
-    @ExceptionHandler(AlreadyExistsUrlException.class)
-    public ResponseEntity<?> handleShortUrlExists(AlreadyExistsUrlException ex) {
+    @ExceptionHandler(UrlSaveException.class)
+    public ResponseEntity<?> handleShortUrlExists(UrlSaveException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(Map.of("error", ex.getMessage()));
