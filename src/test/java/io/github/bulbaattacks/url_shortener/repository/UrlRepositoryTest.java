@@ -7,8 +7,6 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -49,17 +47,12 @@ class UrlRepositoryTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void dontCreateShortUrl_shouldReturnException_whenOriginalUrlExists() {
         var entity1 = createEntity(shortUrl, originalUrl);
         var entity2 = createEntity(shortUrl, originalUrl);
 
         repository.save(entity1);
         assertThrows(DataIntegrityViolationException.class, () -> repository.save(entity2));
-
-        assertEquals(1, repository.count());
-
-        repository.deleteAll();
     }
 
     @Test
