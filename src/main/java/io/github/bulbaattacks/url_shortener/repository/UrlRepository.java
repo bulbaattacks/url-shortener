@@ -1,0 +1,12 @@
+package io.github.bulbaattacks.url_shortener.repository;
+
+import io.github.bulbaattacks.url_shortener.entity.Url;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UrlRepository extends JpaRepository<Url, Long> {
+    Optional<Url> findByShortUrl(String shortUrl);
+
+    Optional<Url> findByOriginalUrl(String originalUrl);
+}
